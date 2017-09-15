@@ -1,0 +1,1 @@
+zgrep -P 'chr2\t' /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataMethylation/CHG_All_methylBatchFactors.gz | sort -k2,2 -k3,3n -T /tmp | gzip > /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataMethylation/chr2_HG_All_methylBatchFactors.gz

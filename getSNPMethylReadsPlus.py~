@@ -1,0 +1,115 @@
+def processLineMethyl(line, methylLetter):
+	# Get the informtion for a line from the methylation file
+	if line == "":
+		# At the end of the file
+		return ["", "", 0, -1]
+
+	lineElements = line.split("\t")
+	read = lineElements[0][0:-2] # Removing the last 2 characters so that pairs are considered part of the same read
+	chrom = lineElements[2]
+	position = int(lineElements[3])
+	call = lineElements[4].strip()
+	state = 0
+	if call == methylLetter:
+		# The C is methylated
+		state = 1
+	return [read, chrom, position, state]
+
+
+def processLineSNP(line):
+	# Get the informtion for a line from the methylation file
+	if line == "":
+		# At the end of the file
+		return ["", "", 0, "", ""]
+
+	lineElements = line.split("\t")
+	read = lineElements[0][0:-2] # Removing the last 2 characters so that pairs are considered part of the same read
+	chrom = lineElements[2]
+	position = int(lineElements[3])
+	statePM = lineElements[1]
+	state = 0
+	if statePM == "-":
+		# The SNP is the alternate allele, so make the state 1
+		state = 1
+	return [read, chrom, position, state]
+
+
+def getSNPMethylReadsPlus(bismarkSNPFileName, bismarkMethylationFileName, methylLetter, sampleNum, outputFileName):
+	# Find the reads with SNPs and Cs
+	# ASSUMES THAT BOTH SNP AND METHYLATION FILES ARE SORTED BY READ NAME
+	# Output file will have the following information for each (SNP, C in the same read):
+	# 1.  Read Name
+	# 2.  SNP chromosome
+	# 3.  SNP position in chromosome
+	# 4.  1 or 0 indicating allele of SNP
+	# 5.  Methylation chromosome
+	# 6.  Methylation position in chromosome
+	# 7.  1 or 0 indicating whether C is methylated (1 means methylated)
+	# 8.  Number indicating which file (replicate and strand) read came from
+	bismarkSNPFile = open(bismarkSNPFileName)
+	bismarkMethylationFile = gzip.open(bismarkMethylationFileName, 'rb')
+	outputFile = gzip.open(outputFileName, 'wb')
+	[methylRead, methylChrom, methylPosition, methylState] = processLineMethyl(bismarkMethylationFile.readline(), methylLetter)
+	CInfo = []
+	lastRead = ""
+	lastSNPPosition = 0
+	atEnd = False
+
+	for line in bismarkSNPFile:
+		# Iterate through the SNPs and find those that are on reads with C's
+		[SNPRead, SNPChrom, SNPPosition, SNPState] = processLineSNP(line)	
+		if SNPRead == lastRead:
+			# The SNP is on the same read as the previous SNP
+			if SNPPosition == lastSNPPosition:
+				# The SNP has been called twice (because it was picked up in both pair members), so skip it
+				continue
+
+ 			for Ci in CInfo:
+				# Iterate through the C information from the last SNP and output it for the current SNP
+				outputFile.write(SNPRead + "\t" + SNPChrom + "\t" + str(SNPPosition) + "\t" + str(SNPState) + "\t" + Ci[0] + "\t" + str(Ci[1]) + "\t" + str(Ci[2]) + "\t" + str(sampleNum) + "\n")
+			lastSNPPosition = SNPPosition
+			continue
+
+		if atEnd == True:
+			# Reached the end of the methylation file on the last iteration	and at a new read, so stop
+			break
+
+		CInfo = []
+		while methylRead < SNPRead:
+			# Go through the methylation file until the reads match or the methylation read passes the SNP read
+			[methylRead, methylChrom, methylPosition, methylState] = processLineMethyl(bismarkMethylationFile.readline(), methylLetter)
+			if methylRead == "":
+				# At the end of the methylation file, so stop
+				atEnd = True
+				break
+		if atEnd == True:
+			# At the end of the methylation file, so stop
+			break
+
+		while methylRead == SNPRead:
+			# Go through the methylation data that is on the same read as the SNP and output the information
+			outputFile.write(SNPRead + "\t" + SNPChrom + "\t" + str(SNPPosition) + "\t" + str(SNPState) + "\t" + methylChrom + "\t" + str(methylPosition) + "\t" + str(methylState) + "\t" + str(sampleNum) + "\n")
+			CInfo.append([methylChrom, methylPosition, methylState])
+			[methylRead, methylChrom, methylPosition, methylState] = processLineMethyl(bismarkMethylationFile.readline(), methylLetter)
+			if methylRead == "":
+				# At the endof the methylation file, so stop
+				atEnd = True
+				break
+		lastRead = SNPRead
+		lastSNPPosition = SNPPosition
+
+	bismarkSNPFile.close()
+	bismarkMethylationFile.close()
+	outputFile.close()
+
+
+if __name__=="__main__":
+	import sys
+	import gzip
+	bismarkSNPFileName = sys.argv[1]
+	bismarkMethylationFileName = sys.argv[2] # Should end with .gz
+	methylLetter = sys.argv[3]
+	sampleNum = sys.argv[4]
+	outputFileName = sys.argv[5] # Should end with .gz
+
+	getSNPMethylReadsPlus(bismarkSNPFileName, bismarkMethylationFileName, methylLetter, sampleNum, outputFileName)

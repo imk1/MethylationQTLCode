@@ -1,0 +1,1 @@
+zcat /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataMethylation/CHH_OT_130730_LYNLEY_0350_BD2C6LACXX_L1_CTTGTA_1_pf_val_1.fq.gz_bismark_bt2_pe.txt.gz | sed '1d' | sort -k1,1 -k3,3 -k4,4n > /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataMethylation/CHH_OT_130730_LYNLEY_0350_BD2C6LACXX_L1_CTTGTA_1_pf_val_1.fq.gz_bismark_bt2_pe.sorted.txt

@@ -1,0 +1,1 @@
+python /science/irene/MethylationQTLProject/src/regressMethylBatchFactors.py /science/irene/MethylationQTLProject/MiseqData/MiseqDataMethylationTrimmed/CpG_test_Bisulphite2OT_Bisulphite23OB_batchFactorInfo_test.txt.gz 5 /science/irene/MethylationQTLProject/MiseqData/MiseqDataMethylationTrimmed/CpG_test_Bisulphite2OT_Bisulphite23OB_residuals_test.txt.gz

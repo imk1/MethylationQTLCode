@@ -1,0 +1,29 @@
+def getCHGLocations(genomeFileName, CHGLocationsFileName):
+	# Get the locations of all CpGs in the genome
+	genomeFile = open(genomeFileName)
+	CHGLocationsFile = open(CHGLocationsFileName, 'w+')
+	
+	for record in SeqIO.parse(genomeFile, "fasta"):
+		# Iterate through the parts of the fasta file and record the locations of the CHGs in each
+		# ASSUMES THAT THERE IS AN ENTRY FOR EACH CHROMOSOME
+		chrom = record.id
+		print chrom
+		sequence = record.seq
+		
+		for i in range(0, len(sequence) - 2):
+			# Iterate through the bases in the current fasta section and record those that are CpGs
+			if ((string.upper(str(sequence[i:i+3])) == "CAG") or (string.upper(str(sequence[i:i+3])) == "CCG")) or (string.upper(str(sequence[i:i+3])) == "CTG"):
+				# At a CHG, so record the location
+				CHGLocationsFile.write(chrom + "\t" + str(i + 1) + "\t" + str(i + 3) + "\n") # ADDING 1 BECAUSE SAM FILES ARE 1-INDEXED
+				
+	genomeFile.close()
+	CHGLocationsFile.close()
+
+if __name__=="__main__":
+	import sys
+	import string
+	from Bio import SeqIO
+	genomeFileName = sys.argv[1]
+	CHGLocationsFileName = sys.argv[2]
+
+	getCHGLocations(genomeFileName, CHGLocationsFileName)

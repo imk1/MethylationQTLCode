@@ -1,0 +1,1 @@
+python /science/irene/MethylationQTLProject/src/getSNPEffectSizes.py /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataSNPsMethyl/chr18_CpG_All_SNPsMethyl.gz /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataSNPsMethyl/chr18_CpG_All_SNPsMethylEffectSizes.gz 10 0.05 0.05 1.0

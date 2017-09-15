@@ -1,0 +1,1 @@
+zgrep -P 'chr2\t' /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataSNPsMethyl/CHG_All_SNPsMethyl.gz | sort -k6,6 -k7,7n -k2,2 -k3,3n -T /tmp | gzip > /science/irene/MethylationQTLProject/HiseqDataProcessed/HiseqDataSNPsMethyl/chr2_CHG_All_SNPsMethyl.gz

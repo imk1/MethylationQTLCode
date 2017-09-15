@@ -1,0 +1,33 @@
+def makeGetSNPEffectSizesRandScript(SNPMethylPlusListFileName, suffix, minReadsCutoff, MAFCutoff, methylCutoff, CVal, numIters, scriptFileName, codePath):
+	# Make a script that will run correlateSNPsMethylation.py on each file in a list
+	SNPMethylPlusListFile = open(SNPMethylPlusListFileName)
+	scriptFile = open(scriptFileName, 'w+')
+
+	for line in SNPMethylPlusListFile:
+		# Iterate through the batch factor files and create a line in the script that will filter them
+		SNPMethylFileName = line.strip()
+		SNPMethylFileNameElements = SNPMethylFileName.split(".")
+		fileTypeLength = len(SNPMethylFileNameElements[-1])
+		outputFileNamePrefix = SNPMethylFileName[0:len(SNPMethylFileName) - fileTypeLength - 1] + suffix
+		cmd = "python " + codePath + "/" + "getSNPEffectSizesRand.py"
+		for i in range(numIters):
+			# Write a line in the script for each iteration
+			scriptFile.write(cmd + " " + SNPMethylFileName + " " + outputFileNamePrefix + " " + str(minReadsCutoff) + " " + str(MAFCutoff) + " " + str(methylCutoff) + " " + str(CVal) + " " + str(i) + "\n")
+
+	SNPMethylPlusListFile.close()
+	scriptFile.close()
+
+
+if __name__=="__main__":
+	import sys
+	SNPMethylPlusListFileName = sys.argv[1]
+	suffix = sys.argv[2]
+	minReadsCutoff = int(sys.argv[3])
+	MAFCutoff = float(sys.argv[4])
+	methylCutoff = float(sys.argv[5])
+	CVal = float(sys.argv[6]) # For minimal regularization, use approximately 1000000000
+	numIters = int(sys.argv[7])
+	scriptFileName = sys.argv[8]
+	codePath = sys.argv[9] # Should not end with /
+
+	makeGetSNPEffectSizesRandScript(SNPMethylPlusListFileName, suffix, minReadsCutoff, MAFCutoff, methylCutoff, CVal, numIters, scriptFileName, codePath)
