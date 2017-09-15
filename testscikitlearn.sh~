@@ -1,1 +1,0 @@
-python regressMethylBatchFactors.py ../MiseqData/MiseqDataMethylationTrimmed/CpG_test_Bisulphite2OT_Bisulphite23OB_batchFactorInfo_test.txt.gz 5 ../MiseqData/MiseqDataMethylationTrimmed/CpG_test_Bisulphite2OT_Bisulphite23OB_residuals_test.txt.gz
